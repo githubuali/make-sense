@@ -15,9 +15,10 @@ export const LoginForm: React.FC = () => {
 
 
   //Submit form and get user data
-  const loginValidation = async () => {
+  const loginValidation = async (e) => {
+    e.preventDefault();
     const action = await loginUserAction({ 
-      username: mail.toLocaleLowerCase(), 
+      email: mail.toLocaleLowerCase(), 
       password: password 
     });
     dispatch(action);

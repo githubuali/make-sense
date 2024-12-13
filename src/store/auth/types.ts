@@ -36,15 +36,14 @@ export interface User {
 }
 
 export interface LoginData {
-    username: string,
+    email: string,
     password: string
 }
 
 interface Login {
     type: typeof Action.LOGIN,
-    payload: {
-        userData: User;
-    }
+    payload: User;
+
 }
 
 interface Logout {

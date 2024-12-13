@@ -24,7 +24,7 @@ export const authReducer = (
 ): User => {
     switch (action.type) {
         case Action.LOGIN: {
-            return action.payload.userData
+            return action.payload
         }
         case Action.LOGOUT: {
             return initialState
