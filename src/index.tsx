@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './App';
 import configureStore from './configureStore';
@@ -9,12 +9,12 @@ import { AppInitializer } from './logic/initializer/AppInitializer';
 export const store = configureStore();
 AppInitializer.inti();
 
-const root = ReactDOM.createRoot(document.getElementById('root') || document.createElement('div'));
-root.render(
+ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
             <App />
         </Provider>
-    </React.StrictMode>
-);
+    </React.StrictMode>,
+      document.getElementById('root'),
+    );
 

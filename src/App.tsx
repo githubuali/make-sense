@@ -2,18 +2,22 @@ import React from 'react';
 import './App.scss';
 import EditorView from './views/EditorView/EditorView';
 import MainView from './views/MainView/MainView';
-import {ProjectType} from './data/enums/ProjectType';
-import {AppState} from './store';
-import {connect} from 'react-redux';
+import { ProjectType } from './data/enums/ProjectType';
+import { AppState } from './store';
+import { connect } from 'react-redux';
 import PopupView from './views/PopupView/PopupView';
 import MobileMainView from './views/MobileMainView/MobileMainView';
-import {ISize} from './interfaces/ISize';
-import {Settings} from './settings/Settings';
-import {SizeItUpView} from './views/SizeItUpView/SizeItUpView';
-import {PlatformModel} from './staticModels/PlatformModel';
+import { ISize } from './interfaces/ISize';
+import { Settings } from './settings/Settings';
+import { SizeItUpView } from './views/SizeItUpView/SizeItUpView';
+import { PlatformModel } from './staticModels/PlatformModel';
 import classNames from 'classnames';
 import NotificationsView from './views/NotificationsView/NotificationsView';
 import { RoboflowAPIDetails } from './store/ai/types';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { DataContainer } from './views/Login/components/Login/DataContainer';
+import { ProtectedResolver } from './utils/ProtectedResolver';
+import { User } from './store/auth/types';
 
 interface IProps {
     projectType: ProjectType;
@@ -22,54 +26,66 @@ interface IProps {
     isPoseDetectionLoaded: boolean;
     isYOLOV5ObjectDetectorLoaded: boolean;
     roboflowAPIDetails: RoboflowAPIDetails;
+    user: User; // Added to check user authentication
 }
 
-const App: React.FC<IProps> = (
-    {
-        projectType,
-        windowSize,
-        isObjectDetectorLoaded,
-        isPoseDetectionLoaded,
-        isYOLOV5ObjectDetectorLoaded,
-        roboflowAPIDetails
-    }
-) => {
+const App: React.FC<IProps> = ({
+    projectType,
+    windowSize,
+    isObjectDetectorLoaded,
+    isPoseDetectionLoaded,
+    isYOLOV5ObjectDetectorLoaded,
+    roboflowAPIDetails,
+    user
+}) => {
+
     const selectRoute = () => {
-        if (!!PlatformModel.mobileDeviceData.manufacturer && !!PlatformModel.mobileDeviceData.os)
-            return <MobileMainView/>;
-        if (!projectType)
-            return <MainView/>;
-        else {
+        if (!!PlatformModel.mobileDeviceData.manufacturer && !!PlatformModel.mobileDeviceData.os) {
+            return <MobileMainView />;
+        }
+        if (!projectType) {
+            return <MainView />;
+        } else {
             if (windowSize.height < Settings.EDITOR_MIN_HEIGHT || windowSize.width < Settings.EDITOR_MIN_WIDTH) {
-                return <SizeItUpView/>;
+                return <SizeItUpView />;
             } else {
-                return <EditorView/>;
+                return <EditorView />;
             }
         }
     };
+
     const isAILoaded = isObjectDetectorLoaded
         || isPoseDetectionLoaded
         || isYOLOV5ObjectDetectorLoaded
-        || (roboflowAPIDetails.model !== '' && roboflowAPIDetails.key !== '' && roboflowAPIDetails.status)
+        || (roboflowAPIDetails.model !== '' && roboflowAPIDetails.key !== '' && roboflowAPIDetails.status);
 
     return (
-        <div className={classNames('App', {'AI': isAILoaded})} draggable={false}
-        >
-            {selectRoute()}
-            <PopupView/>
-            <NotificationsView/>
-        </div>
+        <Router>
+                <Routes>
+                    <Route  element={ <ProtectedResolver redirectPath='/login' user={user}/> }>
+                        <Route path="/" element={
+                            <div className={classNames('App', { 'AI': isAILoaded })} draggable={false}>
+                                {selectRoute()}
+                                <PopupView />
+                                <NotificationsView />
+                            </div>
+                        } />
+                    </Route>
+                    <Route path="/login" element={<DataContainer />} />
+                    <Route path="*" element={<Navigate to={'/login'} replace />} />
+                </Routes>
+        </Router>
     );
 };
-
 
 const mapStateToProps = (state: AppState) => ({
     projectType: state.general.projectData.type,
     windowSize: state.general.windowSize,
-    isSSDObjectDetectorLoaded: state.ai.isSSDObjectDetectorLoaded,
-    isPoseDetectorLoaded: state.ai.isPoseDetectorLoaded,
+    isObjectDetectorLoaded: state.ai.isSSDObjectDetectorLoaded,
+    isPoseDetectionLoaded: state.ai.isPoseDetectorLoaded,
     isYOLOV5ObjectDetectorLoaded: state.ai.isYOLOV5ObjectDetectorLoaded,
-    roboflowAPIDetails: state.ai.roboflowAPIDetails
+    roboflowAPIDetails: state.ai.roboflowAPIDetails,
+    user: state.auth 
 });
 
 export default connect(
