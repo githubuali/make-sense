@@ -1,30 +1,16 @@
-import { loginApi, logoutApi } from "../../api/auth";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Action } from "../Actions";
-import { LoginData } from "./types";
 
-export const loginUserAction = async (userData: LoginData) => {
-    let user;
-    try {
-        user = await loginApi(userData)
-        console.log('USER:', user)
-    } catch {
-        console.log('Invalid login')
-    }
+export const loginRequestAction = () => ({
+    type: Action.LOGIN_REQUEST
+});
 
-    return {
-        type: Action.LOGIN,
-        payload: user.data.data
-    }
-}
+export const loginSuccessAction = (user: any) => ({
+    type: Action.LOGIN_SUCCESS,
+    payload: user
+});
 
-export const logoutUserAction = async () => {
-    try {
-        await logoutApi()
-    } catch {
-        console.log('Invalid logout')
-    }
-    //TODO: FIX LOGIC
-    return {
-        type: Action.LOGOUT
-    }
-}
+export const loginFailureAction = (error: string) => ({
+    type: Action.LOGIN_FAILURE,
+    payload: error
+});

@@ -1,5 +1,5 @@
 import { Action } from '../Actions';
-import { UserRoles, Role, User, AuthActionTypes } from './types'
+import { UserRoles, Role, User, AuthActionTypes, AuthState } from './types';
 
 export const roleInitialState: Role = {
     id: '',
@@ -7,7 +7,7 @@ export const roleInitialState: Role = {
     permission: [],
 };
 
-const initialState: User = {
+const userInitState: User = {
     id: '',
     name: '',
     lastName: '',
@@ -16,18 +16,48 @@ const initialState: User = {
     company: [],
     assignedCompany: [],
     status: false,
-}
+};
+
+const initialState: AuthState = {
+    user: userInitState,
+    loading: false,
+    error: null,
+};
 
 export const authReducer = (
     state = initialState,
     action: AuthActionTypes
-): User => {
+) => {
     switch (action.type) {
-        case Action.LOGIN: {
-            return action.payload
+        case Action.LOGIN_REQUEST: {
+            return {
+                ...state,
+                loading: true,
+                error: null,
+            };
+        }
+        case Action.LOGIN_SUCCESS: {
+            return {
+                ...state,
+                user: action.payload,
+                loading: false,
+                error: null,
+            };
+        }
+        case Action.LOGIN_FAILURE: {
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
         }
         case Action.LOGOUT: {
-            return initialState
+            return {
+                ...state,
+                user: userInitState,
+                loading: false,
+                error: null,
+            };
         }
         default:
             return state;

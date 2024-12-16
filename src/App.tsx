@@ -17,7 +17,6 @@ import { RoboflowAPIDetails } from './store/ai/types';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { DataContainer } from './views/Login/components/Login/DataContainer';
 import { ProtectedResolver } from './utils/ProtectedResolver';
-import { User } from './store/auth/types';
 
 interface IProps {
     projectType: ProjectType;
@@ -26,7 +25,6 @@ interface IProps {
     isPoseDetectionLoaded: boolean;
     isYOLOV5ObjectDetectorLoaded: boolean;
     roboflowAPIDetails: RoboflowAPIDetails;
-    user: User; // Added to check user authentication
 }
 
 const App: React.FC<IProps> = ({
@@ -36,7 +34,6 @@ const App: React.FC<IProps> = ({
     isPoseDetectionLoaded,
     isYOLOV5ObjectDetectorLoaded,
     roboflowAPIDetails,
-    user
 }) => {
 
     const selectRoute = () => {
@@ -62,11 +59,11 @@ const App: React.FC<IProps> = ({
     return (
         <Router>
                 <Routes>
-                    <Route  element={ <ProtectedResolver redirectPath='/login' user={user}/> }>
+                    <Route  element={ <ProtectedResolver redirectPath='/login'/> }>
                         <Route path="/" element={
                             <div className={classNames('App', { 'AI': isAILoaded })} draggable={false}>
                                 {selectRoute()}
-                                <PopupView />
+                                <PopupView/>
                                 <NotificationsView />
                             </div>
                         } />
@@ -85,7 +82,6 @@ const mapStateToProps = (state: AppState) => ({
     isPoseDetectionLoaded: state.ai.isPoseDetectorLoaded,
     isYOLOV5ObjectDetectorLoaded: state.ai.isYOLOV5ObjectDetectorLoaded,
     roboflowAPIDetails: state.ai.roboflowAPIDetails,
-    user: state.auth 
 });
 
 export default connect(

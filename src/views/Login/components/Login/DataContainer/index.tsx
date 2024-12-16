@@ -1,24 +1,30 @@
 import React from 'react';
-import { Container, FormContainer,  TitleContainer, TopImg } from './style';
+import { Container, FormContainer,  Icon,  TitleContainer, TopImg } from './style';
 import { LoginForm } from '../LoginForm';
 import { Login } from '../../../Login'
-// import { useSelector } from 'react-redux';
+import { AuthSelector } from '../../../../../store/selectors/authSelect'
+import { GeneralLoader } from '../../../../Common/Loader';
+import { ServerErrorComponent } from '../../../../Common/ServerError';
+import { getIcons } from '../../../../../utils/IconManager';
+import { useSelector } from 'react-redux';
 
 export const DataContainer: React.FC = () => {
-  // const { status } = useSelector((state: Store) => state.session);
+  const isLoading = useSelector(AuthSelector.isUserLoading);
+  const error = useSelector(AuthSelector.userError);
+
   const component = (
     <Container>
       <TopImg src="./login_top.png" />
       <FormContainer>
-        {/* {status.isLoading ? (
+        {isLoading ? (
           <GeneralLoader component />
-        ) : ( */}
+        ) : (
           <>
-            {/* <Icon>{getIcons('uali-icon')}</Icon> */}
+            <Icon>{getIcons('uali-icon')}</Icon>
             <img src='ico/uali_logo.svg'/>
-            {/* {status.error === 'Server error' ? (
+            {error === 'Server error' ? (
               <ServerErrorComponent />
-            ) : ( */}
+            ) : (
               <>
                 <TitleContainer>
                   <h1>Hello! We welcome you.</h1>
@@ -26,9 +32,9 @@ export const DataContainer: React.FC = () => {
                 </TitleContainer>
                 <LoginForm />
               </>
-            {/* )} */}
+            )}
           </>
-        {/* )} */}
+        )}
       </FormContainer>
     </Container>
   );

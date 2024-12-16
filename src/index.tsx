@@ -7,8 +7,11 @@ import { Provider } from 'react-redux';
 import { AppInitializer } from './logic/initializer/AppInitializer';
 
 export const store = configureStore();
+export type AppDispatch = typeof store.dispatch
+
 AppInitializer.inti();
 
+// const root = ReactDOM.createRoot(document.getElementById('root') || document.createElement('div'));
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
@@ -17,4 +20,3 @@ ReactDOM.render(
     </React.StrictMode>,
       document.getElementById('root'),
     );
-

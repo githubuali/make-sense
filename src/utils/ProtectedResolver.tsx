@@ -1,13 +1,15 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { User } from 'src/store/auth/types';
+import { AuthSelector } from '../store/selectors/authSelect';
+import { useSelector } from 'react-redux';
 
 interface Props {
   redirectPath: string;
-  user: User
 }
 
-export const ProtectedResolver: React.FC<Props> = ({ redirectPath, user }) => {
+export const ProtectedResolver: React.FC<Props> = ({ redirectPath }) => {
+
+  const user = useSelector(AuthSelector.selectUser)
 
   if (user.id === '') {
     return <Navigate to={redirectPath} />;

@@ -35,22 +35,30 @@ export interface User {
     status: boolean;
 }
 
-export interface LoginData {
-    email: string,
-    password: string
+export interface AuthState {
+    user: User;
+    loading: boolean;
+    error: null | string;
 }
 
-interface Login {
-    type: typeof Action.LOGIN,
-    payload: User;
+interface LoginRequest {
+    type: typeof Action.LOGIN_REQUEST;
+}
 
+interface LoginSuccess {
+    type: typeof Action.LOGIN_SUCCESS;
+    payload: User; // Payload will be the user object after successful login
+}
+
+interface LoginFailure {
+    type: typeof Action.LOGIN_FAILURE;
+    payload: string; // Payload will be the error message from failed login
 }
 
 interface Logout {
-    type: typeof Action.LOGOUT,
-    payload: {
-        userData: User;
-    }
+    type: typeof Action.LOGOUT;
+    payload: null; // No payload for logout
 }
 
-export type AuthActionTypes = Login | Logout
+// Combined Auth Action Types (LoginRequest, LoginSuccess, LoginFailure, Logout)
+export type AuthActionTypes = LoginRequest | LoginSuccess | LoginFailure | Logout;
