@@ -16,7 +16,7 @@ import NotificationsView from './views/NotificationsView/NotificationsView';
 import { RoboflowAPIDetails } from './store/ai/types';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { DataContainer } from './views/Login/components/Login/DataContainer';
-import { ProtectedResolver } from './utils/ProtectedResolver';
+import { ProtectedResolver } from './resolvers/ProtectedResolver';
 
 interface IProps {
     projectType: ProjectType;

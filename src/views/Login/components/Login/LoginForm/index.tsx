@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, {  useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { Form, InputContainer } from './style';
 import { RememberComponent } from '../RememberComponent';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SubmitButton } from '../SubmitButton/index';
 import { Input } from 'antd';
 import { loginFailureAction, loginRequestAction, loginSuccessAction } from '../../../../../store/auth/actionCreators'
 import { useNavigate } from 'react-router-dom';
 import { loginApi } from '../../../../../api/auth'
+import { AuthSelector } from '../../../../../store/selectors/authSelect';
 
 export const LoginForm: React.FC = () => {
   const dispatch = useDispatch(); // Correctly type the dispatch
@@ -18,6 +19,7 @@ export const LoginForm: React.FC = () => {
 
   const navigate = useNavigate()
 
+  const user = useSelector(AuthSelector.selectUser)
 
 // Submit form and get user data
 const loginValidation = async (e: React.FormEvent) => {
@@ -25,17 +27,23 @@ const loginValidation = async (e: React.FormEvent) => {
   
   try {
     dispatch(loginRequestAction());
-    const user = await loginApi({ 
+    const loginUser = await loginApi({ 
       email: mail.toLocaleLowerCase(), 
       password: password 
     });
-    dispatch(loginSuccessAction(user.data.data));
-    navigate('/');
+    dispatch(loginSuccessAction(loginUser.data.data));
   } catch (error: any) {
     dispatch(loginFailureAction(error.message || 'Login failed'));
     console.error('Error logging in', error);
   }
 };
+
+useEffect(() => {
+  if(user.id){
+    navigate('/')
+  }
+}, [user])
+
 
   return (
     <Form onSubmit={loginValidation}>

@@ -13,7 +13,7 @@ export const logoutApi = () => axios.post(`${baseURL}/auth/logout`, {}, sendCred
 
 //Validate: POST
 export const validateApi = async () => {
-    return await axios.get(`${baseURL}/auth/session`, sendCredentials);
+    return await axios.get(`${baseURL}/v1/session`, sendCredentials);
 };
 
 //Validate Token

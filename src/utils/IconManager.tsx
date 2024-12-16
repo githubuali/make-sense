@@ -1,5 +1,5 @@
-import { ServerErrorIcon2 } from "../views/Common/Icons/serverErrorIcon2";
 import React from 'react'
+import { ServerErrorIcon2 } from "../views/Common/Icons/serverErrorIcon2";
 import { UaliIcon } from "../views/Common/Icons/ualiIcon";
 
 export const getIcons = (name: string) => {
