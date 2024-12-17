@@ -21,7 +21,6 @@ export const DataContainer: React.FC = () => {
         ) : (
           <>
             <Icon>{getIcons('uali-icon')}</Icon>
-            <img src='ico/uali_logo.svg'/>
             {error === 'Server error' ? (
               <ServerErrorComponent />
             ) : (

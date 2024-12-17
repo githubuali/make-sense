@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {  useEffect, useState } from 'react';
-import { Form, InputContainer } from './style';
-import { RememberComponent } from '../RememberComponent';
+import { Form, InputContainer, LoginError } from './style';
 import { useDispatch, useSelector } from 'react-redux';
 import { SubmitButton } from '../SubmitButton/index';
 import { Input } from 'antd';
@@ -20,6 +19,8 @@ export const LoginForm: React.FC = () => {
   const navigate = useNavigate()
 
   const user = useSelector(AuthSelector.selectUser)
+
+  const userError = useSelector(AuthSelector.userError)
 
 // Submit form and get user data
 const loginValidation = async (e: React.FormEvent) => {
@@ -67,12 +68,11 @@ useEffect(() => {
         />
       </InputContainer>
 
-      {/* {status.error === 'Login error' && (
+      {userError && (
         <LoginError>
-          The username or password entered is incorrect. Please try again or reset your password.
+          The username or password entered is incorrect. Please try again.
         </LoginError>
-      )} */}
-      <RememberComponent />
+      )}
       <SubmitButton text="Login" disabled={!(mail && password)} />
     </Form>
   );
