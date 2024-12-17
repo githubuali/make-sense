@@ -9,7 +9,7 @@ export const loginApi = (loginData: { email: string; password: string }) =>
     axios.post(`${baseURL}/v1/auth/login`, loginData, sendCredentials);
 
 //Logout: POST
-export const logoutApi = () => axios.post(`${baseURL}/auth/logout`, {}, sendCredentials);
+export const logoutApi = () => axios.post(`${baseURL}/v1/auth/logout`, {}, sendCredentials);
 
 //Validate: POST
 export const validateApi = async () => {

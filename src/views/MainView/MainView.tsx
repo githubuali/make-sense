@@ -5,10 +5,15 @@ import classNames from 'classnames';
 import { EditorFeatureData, IEditorFeature } from '../../data/info/EditorFeatureData';
 
 import ImagesDropZone from './ImagesDropZone/ImagesDropZone';
+import { useDispatch } from 'react-redux';
+import { logoutAction } from '../../store/auth/actionCreators';
+import { logoutApi } from '../../api/auth';
 
 const MainView: React.FC = () => {
     const [projectInProgress, setProjectInProgress] = useState(false);
     const [projectCanceled, setProjectCanceled] = useState(false);
+
+    const dispatch = useDispatch()
 
     const startProject = () => {
         setProjectInProgress(true);
@@ -18,6 +23,12 @@ const MainView: React.FC = () => {
         setProjectInProgress(false);
         setProjectCanceled(true);
     };
+
+    const logout = () => {
+        logoutApi()
+        .then(() => dispatch(logoutAction()))
+        .catch(() => console.log('LOGOUT FAILED'))
+    }
 
     const getClassName = () => {
         return classNames(
@@ -105,6 +116,14 @@ const MainView: React.FC = () => {
                         alt={'main-logo'}
                         src={'ico/main-image-color.png'}
                     />
+                {
+                    !projectInProgress &&
+                    <TextButton
+                        label={'LOG OUT'}
+                        onClick={logout}
+                        style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
+                    />
+                }
                 </div>
                 <div className='EditorFeaturesWrapper'>
                     {getEditorFeatureTiles()}
@@ -116,6 +135,7 @@ const MainView: React.FC = () => {
                     label={'Go Back'}
                     onClick={endProject}
                 />}
+               
             </div>
             <div className='RightColumn'>
                 <div />
