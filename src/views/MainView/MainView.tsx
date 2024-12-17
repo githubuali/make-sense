@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import './MainView.scss';
 import { TextButton } from '../Common/TextButton/TextButton';
 import classNames from 'classnames';
-import { ISize } from '../../interfaces/ISize';
-import { ImageButton } from '../Common/ImageButton/ImageButton';
-import { ISocialMedia, SocialMediaData } from '../../data/info/SocialMediaData';
 import { EditorFeatureData, IEditorFeature } from '../../data/info/EditorFeatureData';
-import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
-import Fade from '@mui/material/Fade';
+
 import ImagesDropZone from './ImagesDropZone/ImagesDropZone';
+import { useDispatch } from 'react-redux';
+import { logoutAction } from '../../store/auth/actionCreators';
+import { logoutApi } from '../../api/auth';
 
 const MainView: React.FC = () => {
     const [projectInProgress, setProjectInProgress] = useState(false);
     const [projectCanceled, setProjectCanceled] = useState(false);
+
+    const dispatch = useDispatch()
 
     const startProject = () => {
         setProjectInProgress(true);
@@ -23,6 +24,12 @@ const MainView: React.FC = () => {
         setProjectCanceled(true);
     };
 
+    const logout = () => {
+        logoutApi()
+        .then(() => dispatch(logoutAction()))
+        .catch(() => console.log('LOGOUT FAILED'))
+    }
+
     const getClassName = () => {
         return classNames(
             'MainView', {
@@ -32,39 +39,39 @@ const MainView: React.FC = () => {
         );
     };
 
-    const DarkTooltip = styled(({ className, ...props }: TooltipProps) => (
-        <Tooltip {...props} classes={{ popper: className }} />
-    ))(({ theme }) => ({
-        [`& .${tooltipClasses.tooltip}`]: {
-            backgroundColor: '#171717',
-            color: '#ffffff',
-            boxShadow: theme.shadows[1],
-            fontSize: 11,
-            maxWidth: 120
-        },
-    }));
+    // const DarkTooltip = styled(({ className, ...props }: TooltipProps) => (
+    //     <Tooltip {...props} classes={{ popper: className }} />
+    // ))(({ theme }) => ({
+    //     [`& .${tooltipClasses.tooltip}`]: {
+    //         backgroundColor: '#171717',
+    //         color: '#ffffff',
+    //         boxShadow: theme.shadows[1],
+    //         fontSize: 11,
+    //         maxWidth: 120
+    //     },
+    // }));
 
-    const getSocialMediaButtons = (size: ISize) => {
-        return SocialMediaData.map((data: ISocialMedia, index: number) => {
-            return <DarkTooltip
-                key={index}
-                disableFocusListener={true}
-                title={data.tooltipMessage}
-                TransitionComponent={Fade}
-                TransitionProps={{ timeout: 600 }}
-                placement='left'
-            >
-                <div>
-                    <ImageButton
-                        buttonSize={size}
-                        image={data.imageSrc}
-                        imageAlt={data.imageAlt}
-                        href={data.href}
-                    />
-                </div>
-            </DarkTooltip>;
-        });
-    };
+    // const getSocialMediaButtons = (size: ISize) => {
+    //     return SocialMediaData.map((data: ISocialMedia, index: number) => {
+    //         return <DarkTooltip
+    //             key={index}
+    //             disableFocusListener={true}
+    //             title={data.tooltipMessage}
+    //             TransitionComponent={Fade}
+    //             TransitionProps={{ timeout: 600 }}
+    //             placement='left'
+    //         >
+    //             <div>
+    //                 <ImageButton
+    //                     buttonSize={size}
+    //                     image={data.imageSrc}
+    //                     imageAlt={data.imageAlt}
+    //                     href={data.href}
+    //                 />
+    //             </div>
+    //         </DarkTooltip>;
+    //     });
+    // };
 
     const getEditorFeatureTiles = () => {
         return EditorFeatureData.map((data: IEditorFeature) => {
@@ -109,6 +116,14 @@ const MainView: React.FC = () => {
                         alt={'main-logo'}
                         src={'ico/main-image-color.png'}
                     />
+                {
+                    !projectInProgress &&
+                    <TextButton
+                        label={'LOG OUT'}
+                        onClick={logout}
+                        style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
+                    />
+                }
                 </div>
                 <div className='EditorFeaturesWrapper'>
                     {getEditorFeatureTiles()}
@@ -120,13 +135,14 @@ const MainView: React.FC = () => {
                     label={'Go Back'}
                     onClick={endProject}
                 />}
+               
             </div>
             <div className='RightColumn'>
                 <div />
                 <ImagesDropZone />
-                <div className='SocialMediaWrapper'>
+                {/* <div className='SocialMediaWrapper'>
                     {getSocialMediaButtons({ width: 30, height: 30 })}
-                </div>
+                </div> */}
                 {!projectInProgress && <TextButton
                     label={'Get Started'}
                     onClick={startProject}
