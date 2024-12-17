@@ -1,5 +1,5 @@
-import {LabelType} from '../enums/LabelType';
-import {ProjectType} from '../enums/ProjectType';
+import { LabelType } from '../enums/LabelType';
+import { ProjectType } from '../enums/ProjectType';
 
 export interface ILabelToolkit {
     labelType: LabelType;
@@ -19,7 +19,7 @@ export const LabelToolkitData: ILabelToolkit[] = [
     },
     {
         labelType: LabelType.RECT,
-        headerText: 'Rect',
+        headerText: 'Bounding Box',
         imageSrc: 'ico/rectangle.png',
         imageAlt: 'rectangle',
         projectType: ProjectType.OBJECT_DETECTION,

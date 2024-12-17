@@ -72,7 +72,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
             props.updateActiveImageIndexAction(0);
             props.addImageDataAction(files.map((file:File) => ImageDataUtil
                 .createImageDataFromFileData(file)));
-            // props.updateActivePopupTypeAction(PopupWindowType.INSERT_LABEL_NAMES);
+            props.updateActivePopupTypeAction(PopupWindowType.INSERT_LABEL_NAMES);
         }
     };
     
