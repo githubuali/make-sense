@@ -39,40 +39,6 @@ const MainView: React.FC = () => {
         );
     };
 
-    // const DarkTooltip = styled(({ className, ...props }: TooltipProps) => (
-    //     <Tooltip {...props} classes={{ popper: className }} />
-    // ))(({ theme }) => ({
-    //     [`& .${tooltipClasses.tooltip}`]: {
-    //         backgroundColor: '#171717',
-    //         color: '#ffffff',
-    //         boxShadow: theme.shadows[1],
-    //         fontSize: 11,
-    //         maxWidth: 120
-    //     },
-    // }));
-
-    // const getSocialMediaButtons = (size: ISize) => {
-    //     return SocialMediaData.map((data: ISocialMedia, index: number) => {
-    //         return <DarkTooltip
-    //             key={index}
-    //             disableFocusListener={true}
-    //             title={data.tooltipMessage}
-    //             TransitionComponent={Fade}
-    //             TransitionProps={{ timeout: 600 }}
-    //             placement='left'
-    //         >
-    //             <div>
-    //                 <ImageButton
-    //                     buttonSize={size}
-    //                     image={data.imageSrc}
-    //                     imageAlt={data.imageAlt}
-    //                     href={data.href}
-    //                 />
-    //             </div>
-    //         </DarkTooltip>;
-    //     });
-    // };
-
     const getEditorFeatureTiles = () => {
         return EditorFeatureData.map((data: IEditorFeature) => {
             return <div
@@ -114,7 +80,7 @@ const MainView: React.FC = () => {
                     <img
                         draggable={false}
                         alt={'main-logo'}
-                        src={'ico/main-image-color.png'}
+                        src={'ico/tag_vision.png'}
                     />
                 {
                     !projectInProgress &&
@@ -140,9 +106,8 @@ const MainView: React.FC = () => {
             <div className='RightColumn'>
                 <div />
                 <ImagesDropZone />
-                {/* <div className='SocialMediaWrapper'>
-                    {getSocialMediaButtons({ width: 30, height: 30 })}
-                </div> */}
+                <div className='SocialMediaWrapper'>
+                </div>
                 {!projectInProgress && <TextButton
                     label={'Get Started'}
                     onClick={startProject}
