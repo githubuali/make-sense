@@ -5,6 +5,9 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import {VirtualListUtil} from "../../../utils/VirtualListUtil";
 import {IPoint} from "../../../interfaces/IPoint";
 import {RectUtil} from "../../../utils/RectUtil";
+import { TextButton } from '../TextButton/TextButton';
+import { LabelActions } from '../../../logic/actions/LabelActions';
+import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
 
 interface IProps {
     size: ISize;
@@ -41,7 +44,7 @@ export class VirtualList extends React.Component<IProps, IState> {
                 x: 0,
                 y: 0,
                 width: this.props.size.width,
-                height: this.props.size.height
+                height: this.props.size.height 
             }
         });
     }
@@ -72,7 +75,11 @@ export class VirtualList extends React.Component<IProps, IState> {
         return {
             position: "relative",
             width: this.props.size.width,
-            height: this.props.size.height,
+            height: this.props.size.height - 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            alignItems: 'center'
         }
     };
 
@@ -135,6 +142,27 @@ export class VirtualList extends React.Component<IProps, IState> {
         }, [])
     };
 
+    private saveChanges = () => {
+        const imgsWithLables = LabelsSelector.getImagesData()
+        const formatedTags = imgsWithLables.map(img => (
+            {
+                tagImgId: img.id,
+                bboxes: img.labelRects.map(rect => ({
+                    tagType: rect.labelId,
+                    box: {
+                        x_min: rect.rect.x,
+                        y_min: rect.rect.y,
+                        width: rect.rect.width,
+                        height: rect.rect.height
+                    }
+                }))
+            }
+        ))
+
+        const onlyWithTags = formatedTags.filter(t => t.bboxes.length > 0)
+        console.log(onlyWithTags)
+    }
+
     public render() {
         const displayContent = !!this.props.size && !!this.props.childSize && !!this.gridSize;
 
@@ -157,6 +185,11 @@ export class VirtualList extends React.Component<IProps, IState> {
                         {this.getChildren()}
                     </div>}
                 </Scrollbars>
+                    <TextButton
+                        label={'Save changes'}
+                        onClick={() => this.saveChanges()}
+                        style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center'}}
+                    />
             </div>
         )
     }

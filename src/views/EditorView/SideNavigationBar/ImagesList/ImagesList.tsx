@@ -12,6 +12,7 @@ import {ContextType} from "../../../../data/enums/ContextType";
 import {ImageActions} from "../../../../logic/actions/ImageActions";
 import {EventType} from "../../../../data/enums/EventType";
 import {LabelStatus} from "../../../../data/enums/LabelStatus";
+import { TextButton } from '../../../Common/TextButton/TextButton';
 
 interface IProps {
     activeImageIndex: number;
@@ -108,7 +109,7 @@ class ImagesList extends React.Component<IProps, IState> {
                     childRender={this.renderImagePreview}
                     overScanHeight={200}
                 />}
-            </div>
+            </div> 
         )
     }
 }

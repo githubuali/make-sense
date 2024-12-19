@@ -1,12 +1,12 @@
-import {ImageData} from '../store/labels/types';
+import { ImageData } from '../store/labels/types';
 import { v4 as uuidv4 } from 'uuid';
-import {FileUtil} from './FileUtil';
-import {ImageRepository} from '../logic/imageRepository/ImageRepository';
+import { FileUtil } from './FileUtil';
+import { ImageRepository } from '../logic/imageRepository/ImageRepository';
 
 export class ImageDataUtil {
-    public static createImageDataFromFileData(fileData: File): ImageData {
+    public static createImageDataFromFileData(fileData: File, fileId?: string): ImageData {
         return {
-            id: uuidv4(),
+            id: fileId || uuidv4(),
             fileData,
             loadStatus: false,
             labelRects: [],
@@ -43,7 +43,7 @@ export class ImageDataUtil {
             const missingImages = images.filter((i: ImageData) => !i.loadStatus);
             const missingImagesFiles = missingImages.map((i: ImageData) => i.fileData);
             FileUtil.loadImages(missingImagesFiles)
-                .then((htmlImageElements:HTMLImageElement[]) => {
+                .then((htmlImageElements: HTMLImageElement[]) => {
                     ImageRepository.storeImages(missingImages.map((i: ImageData) => i.id), htmlImageElements);
                     resolve()
                 })
