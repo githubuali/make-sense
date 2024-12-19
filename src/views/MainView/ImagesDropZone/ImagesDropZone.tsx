@@ -24,7 +24,7 @@ interface IProps {
     projectData: ProjectData;
 }
 
-interface TagFile {
+export interface TagFile {
     id: string;
     date: Date;
     url: string;

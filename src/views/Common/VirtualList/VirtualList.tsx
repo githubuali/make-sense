@@ -6,13 +6,18 @@ import {VirtualListUtil} from "../../../utils/VirtualListUtil";
 import {IPoint} from "../../../interfaces/IPoint";
 import {RectUtil} from "../../../utils/RectUtil";
 import { TextButton } from '../TextButton/TextButton';
-import { LabelActions } from '../../../logic/actions/LabelActions';
 import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
+import { getUntaggedImages, postTag2Img } from '../../../api/makesense';
+import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
+import { ImageDataUtil } from '../../../utils/ImageDataUtil';
+import { useDispatch } from 'react-redux';
+import { addImageData, updateActiveImageIndex } from '../../../store/labels/actionCreators';
 
 interface IProps {
     size: ISize;
     childCount: number;
     childSize: ISize;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     childRender: (index: number, isScrolling: boolean, isVisible: boolean, style: React.CSSProperties) => any;
     overScanHeight?: number;
 }
@@ -49,6 +54,7 @@ export class VirtualList extends React.Component<IProps, IState> {
         });
     }
 
+    // eslint-disable-next-line react/no-deprecated
     public componentWillUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): void {
         const {size, childSize, childCount} = nextProps;
         if (this.props.size.height !== size.height || this.props.size.width !== size.width ||
@@ -112,7 +118,7 @@ export class VirtualList extends React.Component<IProps, IState> {
     private getChildren = () => {
         const {viewportRect, isScrolling} = this.state;
         const {overScanHeight, childSize} = this.props;
-        const overScan: number = !!overScanHeight ? overScanHeight : 0;
+        const overScan: number = overScanHeight ? overScanHeight : 0;
 
         const viewportRectWithOverScan:IRect = {
             x: viewportRect.x,
@@ -142,6 +148,53 @@ export class VirtualList extends React.Component<IProps, IState> {
         }, [])
     };
 
+    
+    
+    private processImages = async(tagId) => {
+        const dispatch = useDispatch()
+        try {
+            // Fetch untagged images
+            const data = await getUntaggedImages(tagId);
+    
+            // Convert each signed URL to a File object
+            const files = await Promise.all(data.map(fetchFileFromUrl));
+    
+            // Dispatch actions to update the state
+            dispatch(updateActiveImageIndex(0));
+            dispatch(addImageData(files.map((file) =>
+                ImageDataUtil.createImageDataFromFileData(file, file.name)
+            )));
+        } catch (error) {
+            console.error('Error during image processing:', error);
+            // Optional: Uncomment for error handling
+            // setFileError(true);
+        } finally {
+            // Optional: Uncomment for loading state management
+            // setFilesLoading(false);
+        }
+    }
+
+    // Function to handle Promise.allSettled
+private handlePostImages = async(postImagesArr, tagId) =>  {
+    try {
+        const results = await Promise.allSettled(postImagesArr);
+
+        results.forEach(result => {
+            if (result.status === 'fulfilled') {
+                console.log('Success:', result.value);
+            } else {
+                console.error('Error:', result.reason);
+                throw new Error('One or more uploads failed');
+            }
+        });
+
+        // Process images after all promises are resolved
+        await this.processImages(tagId);
+    } catch (error) {
+        console.error('Error in handlePostImages:', error);
+    }
+}
+
     private saveChanges = () => {
         const imgsWithLables = LabelsSelector.getImagesData()
         const formatedTags = imgsWithLables.map(img => (
@@ -159,8 +212,12 @@ export class VirtualList extends React.Component<IProps, IState> {
             }
         ))
 
-        const onlyWithTags = formatedTags.filter(t => t.bboxes.length > 0)
-        console.log(onlyWithTags)
+        // Generates promieses arr
+        const postImagesArr = formatedTags.map(tag => (
+            postTag2Img(tag.tagImgId, {bboxes: tag.bboxes})
+        ))
+
+        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73');
     }
 
     public render() {
@@ -186,7 +243,7 @@ export class VirtualList extends React.Component<IProps, IState> {
                     </div>}
                 </Scrollbars>
                     <TextButton
-                        label={'Save changes'}
+                        label={'Save & Next Batch'}
                         onClick={() => this.saveChanges()}
                         style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center'}}
                     />
