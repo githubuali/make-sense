@@ -10,8 +10,9 @@ import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
 import { getUntaggedImages, postTag2Img } from '../../../api/makesense';
 import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { addImageData, updateActiveImageIndex } from '../../../store/labels/actionCreators';
+import { LabelActions } from '../../../logic/actions/LabelActions';
 
 interface IProps {
     size: ISize;
@@ -20,6 +21,7 @@ interface IProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     childRender: (index: number, isScrolling: boolean, isVisible: boolean, style: React.CSSProperties) => any;
     overScanHeight?: number;
+    dispatch: any
 }
 
 interface IState {
@@ -148,52 +150,51 @@ export class VirtualList extends React.Component<IProps, IState> {
         }, [])
     };
 
-    
-    
     private processImages = async(tagId) => {
-        const dispatch = useDispatch()
+        // const dispatch = useDispatch()
         try {
             // Fetch untagged images
             const data = await getUntaggedImages(tagId);
-    
+
             // Convert each signed URL to a File object
             const files = await Promise.all(data.map(fetchFileFromUrl));
     
             // Dispatch actions to update the state
-            dispatch(updateActiveImageIndex(0));
-            dispatch(addImageData(files.map((file) =>
-                ImageDataUtil.createImageDataFromFileData(file, file.name)
+            this.props.dispatch(updateActiveImageIndex(0));
+            this.props.dispatch(addImageData(files.map((file) => {
+                const img = ImageDataUtil.createImageDataFromFileData(file, file.name) 
+                console.log(img)
+                return img
+            }
             )));
         } catch (error) {
             console.error('Error during image processing:', error);
-            // Optional: Uncomment for error handling
             // setFileError(true);
         } finally {
-            // Optional: Uncomment for loading state management
             // setFilesLoading(false);
         }
     }
 
     // Function to handle Promise.allSettled
-private handlePostImages = async(postImagesArr, tagId) =>  {
-    try {
-        const results = await Promise.allSettled(postImagesArr);
+    private handlePostImages = async(postImagesArr, tagId) =>  {
+        try {
+            const results = await Promise.allSettled(postImagesArr);
 
-        results.forEach(result => {
-            if (result.status === 'fulfilled') {
-                console.log('Success:', result.value);
-            } else {
-                console.error('Error:', result.reason);
-                throw new Error('One or more uploads failed');
-            }
-        });
+            results.forEach(result => {
+                if (result.status === 'fulfilled') {
+                    console.log('Success:', result.value);
+                } else {
+                    console.error('Error:', result.reason);
+                    throw new Error('One or more uploads failed');
+                }
+            });
 
-        // Process images after all promises are resolved
-        await this.processImages(tagId);
-    } catch (error) {
-        console.error('Error in handlePostImages:', error);
+            // Process images after all promises are resolved
+            await this.processImages(tagId);
+        } catch (error) {
+            console.error('Error in handlePostImages:', error);
+        }
     }
-}
 
     private saveChanges = () => {
         const imgsWithLables = LabelsSelector.getImagesData()
@@ -212,14 +213,17 @@ private handlePostImages = async(postImagesArr, tagId) =>  {
             }
         ))
 
-        // Generates promieses arr
+        // Generates promises arr
         const postImagesArr = formatedTags.map(tag => (
             postTag2Img(tag.tagImgId, {bboxes: tag.bboxes})
         ))
 
-        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73');
-    }
+        // TODO: todavia no funciona para borrar la info del redux
+        LabelActions.clearImagesData()
 
+        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73')
+    }
+    
     public render() {
         const displayContent = !!this.props.size && !!this.props.childSize && !!this.gridSize;
 
@@ -251,3 +255,5 @@ private handlePostImages = async(postImagesArr, tagId) =>  {
         )
     }
 }
+
+export default connect()(VirtualList);

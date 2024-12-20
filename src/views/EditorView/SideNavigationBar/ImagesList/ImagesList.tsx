@@ -13,11 +13,13 @@ import {ImageActions} from "../../../../logic/actions/ImageActions";
 import {EventType} from "../../../../data/enums/EventType";
 import {LabelStatus} from "../../../../data/enums/LabelStatus";
 import { TextButton } from '../../../Common/TextButton/TextButton';
+import { AnyAction } from 'redux';
 
 interface IProps {
     activeImageIndex: number;
     imagesData: ImageData[];
     activeLabelType: LabelType;
+    dispatch: any;
 }
 
 interface IState {
@@ -108,6 +110,7 @@ class ImagesList extends React.Component<IProps, IState> {
                     childCount={this.props.imagesData.length}
                     childRender={this.renderImagePreview}
                     overScanHeight={200}
+                    dispatch={this.props.dispatch}
                 />}
             </div> 
         )

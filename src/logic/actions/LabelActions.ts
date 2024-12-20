@@ -2,7 +2,7 @@ import {LabelsSelector} from '../../store/selectors/LabelsSelector';
 import {ImageData, LabelLine, LabelName, LabelPoint, LabelPolygon, LabelRect} from '../../store/labels/types';
 import {filter} from 'lodash';
 import {store} from '../../index';
-import {updateImageData, updateImageDataById} from '../../store/labels/actionCreators';
+import {clearAllImageData, updateImageData, updateImageDataById} from '../../store/labels/actionCreators';
 import {LabelType} from '../../data/enums/LabelType';
 import {LabelUtil} from '../../utils/LabelUtil';
 
@@ -60,6 +60,13 @@ export class LabelActions {
         store.dispatch(updateImageDataById(imageData.id, newImageData));
     }
 
+    // TODO: hacer que funcione esto
+    public static clearImagesData() {
+        console.log("trying to clear imageData")
+        store.dispatch(clearAllImageData([]))
+        console.log("cleared")
+    }
+
     public static deletePolygonLabelById(imageId: string, labelPolygonId: string) {
         const imageData: ImageData = LabelsSelector.getImageDataById(imageId);
         const newImageData = {
@@ -90,6 +97,7 @@ export class LabelActions {
         };
         store.dispatch(updateImageDataById(imageData.id, newImageData));
     }
+
 
     public static removeLabelNames(labelNamesIds: string[]) {
         const imagesData: ImageData[] = LabelsSelector.getImagesData();

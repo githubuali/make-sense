@@ -75,6 +75,15 @@ export function updateImageData(imageData: ImageData[]): LabelsActionTypes {
     };
 }
 
+export function clearAllImageData(imageData: ImageData[]): LabelsActionTypes {
+    return {
+        type: Action.CLEAR_IMAGES_DATA,
+        payload: {
+            imageData
+        }
+    }
+}
+
 export function updateLabelNames(labels: LabelName[]): LabelsActionTypes {
     return {
         type: Action.UPDATE_LABEL_NAMES,
