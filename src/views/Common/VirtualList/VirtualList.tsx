@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import {ISize} from "../../../interfaces/ISize";
 import {IRect} from "../../../interfaces/IRect";
@@ -9,25 +10,29 @@ import { TextButton } from '../TextButton/TextButton';
 import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
 import { getUntaggedImages, postTag2Img } from '../../../api/makesense';
 import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
+import { updateActiveImageIndex, updateImageData } from '../../../store/labels/actionCreators';
+import { connect } from 'react-redux';
+import {ImageData} from '../../../store/labels/types';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
-import { useDispatch } from 'react-redux';
-import { addImageData, updateActiveImageIndex } from '../../../store/labels/actionCreators';
+
 
 interface IProps {
     size: ISize;
     childCount: number;
     childSize: ISize;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     childRender: (index: number, isScrolling: boolean, isVisible: boolean, style: React.CSSProperties) => any;
     overScanHeight?: number;
+    updateActiveImageIndex: (activeImageIndex: number) => any;
+    updateImageData: (imageData: ImageData[]) => any;
 }
 
 interface IState {
     viewportRect: IRect;
     isScrolling: boolean;
+    isLoading: boolean;
 }
 
-export class VirtualList extends React.Component<IProps, IState> {
+class VirtualList extends React.Component<IProps, IState> {
     private gridSize: ISize;
     private contentSize: ISize;
     private childAnchors: IPoint[];
@@ -37,12 +42,14 @@ export class VirtualList extends React.Component<IProps, IState> {
         super(props);
         this.state = {
             viewportRect: null,
-            isScrolling: false
+            isScrolling: false,
+            isLoading: false,
         };
     }
 
     public componentDidMount(): void {
         const {size, childSize, childCount} = this.props;
+        console.log(this.props)
         this.calculate(size, childSize, childCount);
         this.setState({
             viewportRect: {
@@ -55,7 +62,7 @@ export class VirtualList extends React.Component<IProps, IState> {
     }
 
     // eslint-disable-next-line react/no-deprecated
-    public componentWillUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): void {
+    public componentWillUpdate(nextProps: Readonly<IProps>): void {
         const {size, childSize, childCount} = nextProps;
         if (this.props.size.height !== size.height || this.props.size.width !== size.width ||
             this.props.childCount !== childCount) {
@@ -150,50 +157,42 @@ export class VirtualList extends React.Component<IProps, IState> {
 
     
     
-    private processImages = async(tagId) => {
-        const dispatch = useDispatch()
+    private processImages = async (tagId: string) => {
+        this.setState({ isLoading: true });
         try {
-            // Fetch untagged images
             const data = await getUntaggedImages(tagId);
-    
-            // Convert each signed URL to a File object
             const files = await Promise.all(data.map(fetchFileFromUrl));
-    
-            // Dispatch actions to update the state
-            dispatch(updateActiveImageIndex(0));
-            dispatch(addImageData(files.map((file) =>
-                ImageDataUtil.createImageDataFromFileData(file, file.name)
-            )));
+
+            this.props.updateActiveImageIndex(0);
+            this.props.updateImageData(files.map((file:File) => ImageDataUtil
+                .createImageDataFromFileData(file, file.name)));
         } catch (error) {
             console.error('Error during image processing:', error);
-            // Optional: Uncomment for error handling
-            // setFileError(true);
         } finally {
-            // Optional: Uncomment for loading state management
-            // setFilesLoading(false);
+            this.setState({ isLoading: false });
         }
-    }
+    };
 
     // Function to handle Promise.allSettled
-private handlePostImages = async(postImagesArr, tagId) =>  {
-    try {
-        const results = await Promise.allSettled(postImagesArr);
+    private handlePostImages = async (postImagesArr: Promise<any>[], tagId: string) => {
+        this.setState({ isLoading: true });
+        try {
+            const results = await Promise.allSettled(postImagesArr);
 
-        results.forEach(result => {
-            if (result.status === 'fulfilled') {
-                console.log('Success:', result.value);
-            } else {
-                console.error('Error:', result.reason);
+            const failedUploads = results.filter(result => result.status === 'rejected');
+            if (failedUploads.length > 0) {
+                console.error('Some uploads failed:', failedUploads);
                 throw new Error('One or more uploads failed');
             }
-        });
 
-        // Process images after all promises are resolved
-        await this.processImages(tagId);
-    } catch (error) {
-        console.error('Error in handlePostImages:', error);
-    }
-}
+            await this.processImages(tagId);
+        } catch (error) {
+            console.error('Error in handlePostImages:', error);
+        } finally {
+            this.setState({ isLoading: false });
+        }
+    };
+
 
     private saveChanges = () => {
         const imgsWithLables = LabelsSelector.getImagesData()
@@ -222,6 +221,7 @@ private handlePostImages = async(postImagesArr, tagId) =>  {
 
     public render() {
         const displayContent = !!this.props.size && !!this.props.childSize && !!this.gridSize;
+        const { isLoading } = this.state;
 
         return(
             <div
@@ -242,12 +242,19 @@ private handlePostImages = async(postImagesArr, tagId) =>  {
                         {this.getChildren()}
                     </div>}
                 </Scrollbars>
-                    <TextButton
-                        label={'Save & Next Batch'}
-                        onClick={() => this.saveChanges()}
-                        style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center'}}
-                    />
+                <TextButton
+                    label={isLoading ? 'Processing...' : 'Save & Next Batch'}
+                    onClick={() => !isLoading && this.saveChanges()}
+                    style={{ color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center' }}
+                />
             </div>
         )
     }
 }
+
+const mapDispatchToProps = {
+    updateActiveImageIndex,
+    updateImageData,
+};
+
+export default connect(null, mapDispatchToProps)(VirtualList);
