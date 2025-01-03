@@ -10,7 +10,7 @@ import { TextButton } from '../TextButton/TextButton';
 import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
 import { getUntaggedImages, postTag2Img } from '../../../api/makesense';
 import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
-import { updateActiveImageIndex, updateImageData } from '../../../store/labels/actionCreators';
+import { addImageData, clearAllImageData, updateActiveImageIndex, updateImageData } from '../../../store/labels/actionCreators';
 import { connect } from 'react-redux';
 import {ImageData} from '../../../store/labels/types';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
@@ -24,6 +24,8 @@ interface IProps {
     overScanHeight?: number;
     updateActiveImageIndex: (activeImageIndex: number) => any;
     updateImageData: (imageData: ImageData[]) => any;
+    clearAllImageData: () => any;
+    addImageDataAction: (imageData: ImageData[]) => any;
 }
 
 interface IState {
@@ -160,15 +162,19 @@ class VirtualList extends React.Component<IProps, IState> {
     private processImages = async (tagId: string) => {
         this.setState({ isLoading: true });
         try {
-            const data = await getUntaggedImages(tagId);
+            const data = await getUntaggedImages(tagId)
             const files = await Promise.all(data.map(fetchFileFromUrl));
 
             this.props.updateActiveImageIndex(0);
+            // this.props.clearAllImageData()
+            // this.props.addImageDataAction(files.map((file:File) => ImageDataUtil
+            //                 .createImageDataFromFileData(file, file.name)));
             this.props.updateImageData(files.map((file:File) => ImageDataUtil
                 .createImageDataFromFileData(file, file.name)));
         } catch (error) {
             console.error('Error during image processing:', error);
         } finally {
+            console.log("finished process images")
             this.setState({ isLoading: false });
         }
     };
@@ -189,6 +195,7 @@ class VirtualList extends React.Component<IProps, IState> {
         } catch (error) {
             console.error('Error in handlePostImages:', error);
         } finally {
+            console.log("finish handle post images")
             this.setState({ isLoading: false });
         }
     };
@@ -255,6 +262,8 @@ class VirtualList extends React.Component<IProps, IState> {
 const mapDispatchToProps = {
     updateActiveImageIndex,
     updateImageData,
+    clearAllImageData,
+    addImageDataAction: addImageData,
 };
 
 export default connect(null, mapDispatchToProps)(VirtualList);

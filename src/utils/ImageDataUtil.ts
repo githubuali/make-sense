@@ -7,7 +7,7 @@ export class ImageDataUtil {
     public static createImageDataFromFileData(fileData: File, fileId?: string): ImageData {
         return {
             id: fileId || uuidv4(),
-            fileData,
+            fileData: fileData,
             loadStatus: false,
             labelRects: [],
             labelPoints: [],

@@ -147,7 +147,7 @@ interface UpdateFirstLabelCreatedFlag {
 interface ClearImagesData {
     type: typeof Action.CLEAR_IMAGES_DATA;
     payload: {
-        imageData: ImageData[];
+        imageData: [];
     }
 }
 
