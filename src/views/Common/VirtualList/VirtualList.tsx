@@ -10,10 +10,12 @@ import { TextButton } from '../TextButton/TextButton';
 import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
 import { getUntaggedImages, postTag2Img } from '../../../api/makesense';
 import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
-import { addImageData, clearAllImageData, updateActiveImageIndex, updateImageData } from '../../../store/labels/actionCreators';
+import { updateActiveImageIndex, updateImageData } from '../../../store/labels/actionCreators';
 import { connect } from 'react-redux';
 import {ImageData} from '../../../store/labels/types';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
+import ReactModal from 'react-modal';
+import { ClipLoader } from 'react-spinners';
 
 
 interface IProps {
@@ -24,15 +26,16 @@ interface IProps {
     overScanHeight?: number;
     updateActiveImageIndex: (activeImageIndex: number) => any;
     updateImageData: (imageData: ImageData[]) => any;
-    clearAllImageData: () => any;
-    addImageDataAction: (imageData: ImageData[]) => any;
 }
 
 interface IState {
     viewportRect: IRect;
     isScrolling: boolean;
     isLoading: boolean;
+    showModal: boolean;
 }
+
+ReactModal.setAppElement('#root');
 
 class VirtualList extends React.Component<IProps, IState> {
     private gridSize: ISize;
@@ -46,6 +49,7 @@ class VirtualList extends React.Component<IProps, IState> {
             viewportRect: null,
             isScrolling: false,
             isLoading: false,
+            showModal: false,
         };
     }
 
@@ -124,6 +128,10 @@ class VirtualList extends React.Component<IProps, IState> {
         });
     };
 
+    private closeModal = () => {
+        this.setState({ showModal: false })
+    }
+
     private getChildren = () => {
         const {viewportRect, isScrolling} = this.state;
         const {overScanHeight, childSize} = this.props;
@@ -166,16 +174,15 @@ class VirtualList extends React.Component<IProps, IState> {
             const files = await Promise.all(data.map(fetchFileFromUrl));
 
             this.props.updateActiveImageIndex(0);
-            // this.props.clearAllImageData()
-            // this.props.addImageDataAction(files.map((file:File) => ImageDataUtil
-            //                 .createImageDataFromFileData(file, file.name)));
             this.props.updateImageData(files.map((file:File) => ImageDataUtil
                 .createImageDataFromFileData(file, file.name)));
         } catch (error) {
             console.error('Error during image processing:', error);
         } finally {
-            console.log("finished process images")
             this.setState({ isLoading: false });
+            if (this.scrollbars) {
+                this.scrollbars.scrollToTop();
+            }
         }
     };
 
@@ -195,13 +202,13 @@ class VirtualList extends React.Component<IProps, IState> {
         } catch (error) {
             console.error('Error in handlePostImages:', error);
         } finally {
-            console.log("finish handle post images")
             this.setState({ isLoading: false });
         }
     };
 
 
     private saveChanges = () => {
+        this.setState({ showModal: true })
         const imgsWithLables = LabelsSelector.getImagesData()
         const formatedTags = imgsWithLables.map(img => (
             {
@@ -223,47 +230,78 @@ class VirtualList extends React.Component<IProps, IState> {
             postTag2Img(tag.tagImgId, {bboxes: tag.bboxes})
         ))
 
-        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73');
+        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73').finally(() => {
+            this.closeModal();
+        });
     }
     
     public render() {
         const displayContent = !!this.props.size && !!this.props.childSize && !!this.gridSize;
-        const { isLoading } = this.state;
-
-        return(
-            <div
-                className="VirtualList"
-                style={this.getVirtualListStyle()}
+        const { isLoading, showModal } = this.state;
+    
+        return (
+        <div className="VirtualList" style={this.getVirtualListStyle()}>
+            <Scrollbars
+            ref={ref => (this.scrollbars = ref)}
+            onScrollFrame={this.onScroll}
+            onScrollStart={this.onScrollStart}
+            onScrollStop={this.onScrollStop}
+            autoHide={true}
             >
-                <Scrollbars
-                    ref={ref => this.scrollbars = ref}
-                    onScrollFrame={this.onScroll}
-                    onScrollStart={this.onScrollStart}
-                    onScrollStop={this.onScrollStop}
-                    autoHide={true}
-                >
-                    {displayContent && <div
-                        className="VirtualListContent"
-                        style={this.getVirtualListContentStyle()}
-                    >
-                        {this.getChildren()}
-                    </div>}
-                </Scrollbars>
-                <TextButton
-                    label={isLoading ? 'Processing...' : 'Save & Next Batch'}
-                    onClick={() => !isLoading && this.saveChanges()}
-                    style={{ color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center' }}
-                />
-            </div>
-        )
+            {displayContent && (
+                <div className="VirtualListContent" style={this.getVirtualListContentStyle()}>
+                {this.getChildren()}
+                </div>
+            )}
+            </Scrollbars>
+    
+            <TextButton
+            label={isLoading ? 'Processing...' : 'Save & Next Batch'}
+            onClick={() => !isLoading && this.saveChanges()}
+            style={{ color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content', alignSelf: 'center' }}
+            />
+
+            {showModal && (
+            <ReactModal
+                isOpen={showModal}
+                onRequestClose={() => { return }}
+                shouldCloseOnOverlayClick= {false}
+                shouldCloseOnEsc={false}
+                contentLabel="Processing Modal"
+                style={{
+                    overlay: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    zIndex: 1000,
+                    },
+                    content: {
+                        top: '50%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        padding: '20px',
+                        textAlign: 'center',
+                    },
+                }}
+            >
+                <h2>Processing...</h2>
+                <ClipLoader
+                        size={30}
+                        color={'#171717'}
+                        loading={true}
+                    />
+                <p>Please wait while we save your changes.</p>
+            </ReactModal>
+            )}
+        </div>
+        );
     }
-}
+    }
 
 const mapDispatchToProps = {
     updateActiveImageIndex,
     updateImageData,
-    clearAllImageData,
-    addImageDataAction: addImageData,
 };
 
 export default connect(null, mapDispatchToProps)(VirtualList);
