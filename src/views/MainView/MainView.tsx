@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './MainView.scss';
 import { TextButton } from '../Common/TextButton/TextButton';
 import classNames from 'classnames';
 import { EditorFeatureData, IEditorFeature } from '../../data/info/EditorFeatureData';
 
 import ImagesDropZone from './ImagesDropZone/ImagesDropZone';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutAction } from '../../store/auth/actionCreators';
 import { logoutApi } from '../../api/auth';
+import { getNumberTaggedImagesByUserId } from '../../api/makesense';
 
 const MainView: React.FC = () => {
     const [projectInProgress, setProjectInProgress] = useState(false);
     const [projectCanceled, setProjectCanceled] = useState(false);
+    const [numberImages, setNumberImages] = useState(0)
 
     const dispatch = useDispatch()
+
+    const userId = useSelector((state: { auth: { user: { id: string } } }) => state.auth.user.id)
+
+    useEffect(() => {
+            getNumberTaggedImagesByUserId(userId)
+                .then((res) => setNumberImages(res))
+                .catch((err) => console.error(err));
+        }, [])
 
     const startProject = () => {
         setProjectInProgress(true);
@@ -82,6 +92,15 @@ const MainView: React.FC = () => {
                         alt={'main-logo'}
                         src={'ico/tag_vision.png'}
                     />
+
+                <div>
+                    <p
+                    style={{color: "white"}}
+                    >
+                        Number of images tagged: {numberImages}
+                    </p>
+                </div>
+
                 {
                     !projectInProgress &&
                     <TextButton
@@ -90,6 +109,11 @@ const MainView: React.FC = () => {
                         style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
                     />
                 }
+                {projectInProgress && <TextButton
+                    label={'Go Back'}
+                    onClick={endProject}
+                    style={{position: 'inherit' ,boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
+                />}
                 </div>
                 <div className='EditorFeaturesWrapper'>
                     {getEditorFeatureTiles()}
@@ -97,11 +121,11 @@ const MainView: React.FC = () => {
                 <div className='TriangleVertical'>
                     <div className='TriangleVerticalContent' />
                 </div>
-                {projectInProgress && <TextButton
+                {/* {projectInProgress && <TextButton
                     label={'Go Back'}
                     onClick={endProject}
-                />}
-               
+                />} */}
+            
             </div>
             <div className='RightColumn'>
                 <div />

@@ -34,3 +34,6 @@ export const postTag2Img = (tagImgId: string, bboxes: { bboxes: BBoxWithType[] }
 
 export const getTagTypeByMissionType = (missionTypeId: string) =>
     axios.get(`${makesenseURL}/v1/missions/types/${missionTypeId}`, sendCredentials).then(res => res.data)
+
+export const getNumberTaggedImagesByUserId = (userId: string) => 
+    axios.get(`${makesenseURL}/v1/tagImages?${userId}`, sendCredentials).then(res => res.data)
