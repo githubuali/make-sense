@@ -34,6 +34,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
     const [fileError, setFileError] = useState(false);
     const [filesLoading, setFilesLoading] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state
+    const [flag, setFlag] = useState(true);
 
     const getFiles = () => {
         setFilesLoading(true);
@@ -56,6 +57,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
     const handleGetButtonClick = () => {
         if (!isButtonDisabled) {
             setIsButtonDisabled(true);
+            setFlag(false)
             getFiles();
         }
     };
@@ -71,7 +73,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
                 </>
             );
 
-        if (untaggedFiles.length === 0)
+        if (flag) {
             return (
                 <div>
                     <img
@@ -81,7 +83,20 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
                     />
                     <p className="extraBold">Click here to get images</p>
                 </div>
-            );
+            )  
+        }
+        else if (untaggedFiles.length === 0) {
+            return (
+                <div>
+                    <img
+                        draggable={false}
+                        alt={'no more imgs'}
+                        src={'ico/ok.png'}
+                    />
+                    <p className="extraBold">There are no more images to tag</p>
+                </div>
+            )  
+        }
         else if (untaggedFiles.length === 1)
             return (
                 <div>
@@ -144,13 +159,13 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
             >
                 {getButtonContent()}
             </div>
-            <div className="DropZoneButtons">
+            {!!untaggedFiles.length && <div className="DropZoneButtons">
                 <TextButton
                     label={'Start editing'}
                     isDisabled={!untaggedFiles.length}
                     onClick={startEditorWithObjectDetection}
                 />
-            </div>
+            </div>}
         </div>
     );
 };
