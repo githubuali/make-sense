@@ -6,8 +6,9 @@ import {ContextType} from '../../data/enums/ContextType';
 import {ProjectType} from '../../data/enums/ProjectType';
 
 export type ProjectData = {
+    missionTypeId: string;
     type: ProjectType;
-    name: string,
+    name: string;
 }
 
 export type GeneralState = {

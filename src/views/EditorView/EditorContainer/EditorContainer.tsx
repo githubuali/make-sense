@@ -35,7 +35,6 @@ const EditorContainer: React.FC<IProps> = (
     }) => {
     const [leftTabStatus, setLeftTabStatus] = useState(true);
     const [rightTabStatus, setRightTabStatus] = useState(true);
-    const dispatch = useDispatch();
 
     const calculateEditorSize = (): ISize => {
         if (windowSize) {
@@ -73,9 +72,7 @@ const EditorContainer: React.FC<IProps> = (
     };
 
     const leftSideBarRender = () => {
-        return <ImagesList
-                dispatch={dispatch}
-                />
+        return <ImagesList />
     };
 
     const rightSideBarButtonOnClick = () => {

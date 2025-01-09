@@ -26,6 +26,7 @@ interface IProps {
     overScanHeight?: number;
     updateActiveImageIndex: (activeImageIndex: number) => any;
     updateImageData: (imageData: ImageData[]) => any;
+    missionTypeId: string;
 }
 
 interface IState {
@@ -234,12 +235,14 @@ class VirtualList extends React.Component<IProps, IState> {
             }
         ))
 
+        const { missionTypeId } = this.props;
+        
         // Generates promises arr
         const postImagesArr = formatedTags.map(tag => (
             postTag2Img(tag.tagImgId, {bboxes: tag.bboxes})
         ))
 
-        this.handlePostImages(postImagesArr, '4de315d3-02d7-4e20-bdb5-700c42509b73').finally(() => {
+        this.handlePostImages(postImagesArr, missionTypeId).finally(() => {
             this.closeModal();
         });
     }
@@ -350,9 +353,17 @@ class VirtualList extends React.Component<IProps, IState> {
     }
     }
 
+const mapStateToProps = (state: any) => {
+    const missionTypeId = state.general.projectData.missionTypeId
+    return {
+        missionTypeId: missionTypeId,
+    }
+};
+
 const mapDispatchToProps = {
     updateActiveImageIndex,
     updateImageData,
 };
 
-export default connect(null, mapDispatchToProps)(VirtualList);
+export default connect(mapStateToProps, mapDispatchToProps)(VirtualList);
+

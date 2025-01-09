@@ -37,3 +37,6 @@ export const getTagTypeByMissionType = (missionTypeId: string) =>
 
 export const getNumberTaggedImagesByUserId = (userId: string) => 
     axios.get(`${makesenseURL}/v1/tagImages?${userId}`, sendCredentials).then(res => res.data)
+
+export const getAllMissionTypes = () =>
+    axios.get(`${makesenseURL}/v1/missions/types`, sendCredentials).then(res => res.data)

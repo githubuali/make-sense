@@ -16,6 +16,7 @@ import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
 import { ClipLoader } from 'react-spinners';
 
 interface IProps {
+    missionTypeId: string;
     updateActiveImageIndexAction: (activeImageIndex: number) => any;
     addImageDataAction: (imageData: ImageData[]) => any;
     updateProjectDataAction: (projectData: ProjectData) => any;
@@ -38,7 +39,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
 
     const getFiles = () => {
         setFilesLoading(true);
-        getUntaggedImages('4de315d3-02d7-4e20-bdb5-700c42509b73')
+        getUntaggedImages(props.missionTypeId)
             .then((data: TagFile[]) => {
                 // Convert each signed URL to a File object
                 return Promise.all(data.map(fetchFileFromUrl));
@@ -130,6 +131,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
             props.updateProjectDataAction({
                 ...props.projectData,
                 type: projectType,
+                missionTypeId: props.missionTypeId,
             });
             props.updateActiveImageIndexAction(0);
             props.addImageDataAction(
