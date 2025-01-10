@@ -46,12 +46,13 @@ class ImagePreview extends React.Component<IProps, IState> {
 
     public componentWillUpdate(nextProps: Readonly<IProps>, nextState: Readonly<IState>, nextContext: any): void {
         if (this.props.imageData.id !== nextProps.imageData.id) {
-            if (nextProps.imageData.loadStatus) {
-                ImageLoadManager.addAndRun(this.loadImage(nextProps.imageData, nextProps.isScrolling));
-            }
-            else {
-                this.setState({ image: null });
-            }
+            // if (nextProps.imageData.loadStatus) {
+            //     ImageLoadManager.addAndRun(this.loadImage(nextProps.imageData, nextProps.isScrolling));
+            // }
+            // else {
+            //     this.setState({ image: null });
+            // }
+            ImageLoadManager.addAndRun(this.loadImage(nextProps.imageData, nextProps.isScrolling));
         }
 
         if (this.props.isScrolling && !nextProps.isScrolling) {

@@ -33,4 +33,10 @@ export const postTag2Img = (tagImgId: string, bboxes: { bboxes: BBoxWithType[] }
     axios.post(`${makesenseURL}/v1/images/${tagImgId}/tags`, bboxes, sendCredentials).then(res => res.data)
 
 export const getTagTypeByMissionType = (missionTypeId: string) =>
-    axios.get(`${makesenseURL}/v1/missions/types/${missionTypeId}`).then(res => res.data)
+    axios.get(`${makesenseURL}/v1/missions/types/${missionTypeId}`, sendCredentials).then(res => res.data)
+
+export const getNumberTaggedImagesByUserId = (userId: string) => 
+    axios.get(`${makesenseURL}/v1/tagImages?${userId}`, sendCredentials).then(res => res.data)
+
+export const getAllMissionTypes = () =>
+    axios.get(`${makesenseURL}/v1/missions/types`, sendCredentials).then(res => res.data)

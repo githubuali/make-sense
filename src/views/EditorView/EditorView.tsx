@@ -28,7 +28,7 @@ const EditorView: React.FC<IProps> = ({activePopupType}) => {
             draggable={false}
         >
             <TopNavigationBar/>
-            <EditorContainer/>
+            <EditorContainer />
         </div>
     );
 };

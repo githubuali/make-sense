@@ -25,7 +25,7 @@ export const TopImg = styled.img`
 export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: calc(100% - 90px);
   height: 100%;
   padding: 40px 45px;
   gap: 40px;

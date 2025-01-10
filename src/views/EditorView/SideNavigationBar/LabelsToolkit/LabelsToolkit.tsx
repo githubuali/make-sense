@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import './LabelsToolkit.scss';
 import {ImageData} from "../../../../store/labels/types";
@@ -12,13 +13,9 @@ import {find} from "lodash";
 import {ILabelToolkit, LabelToolkitData} from "../../../../data/info/LabelToolkitData";
 import {Settings} from "../../../../settings/Settings";
 import RectLabelsList from "../RectLabelsList/RectLabelsList";
-import PointLabelsList from "../PointLabelsList/PointLabelsList";
-import PolygonLabelsList from "../PolygonLabelsList/PolygonLabelsList";
 import {ContextManager} from "../../../../logic/context/ContextManager";
 import {ContextType} from "../../../../data/enums/ContextType";
 import {EventType} from "../../../../data/enums/EventType";
-import LineLabelsList from "../LineLabelsList/LineLabelsList";
-import TagLabelsList from "../TagLabelsList/TagLabelsList";
 
 interface IProps {
     activeImageIndex:number,
@@ -51,9 +48,9 @@ class LabelsToolkit extends React.Component<IProps, IState> {
             ] :
             [
                 LabelType.RECT,
-                LabelType.POINT,
-                LabelType.LINE,
-                LabelType.POLYGON
+                // LabelType.POINT,
+                // LabelType.LINE,
+                // LabelType.POLYGON
             ];
 
         const activeTab: LabelType = props.activeLabelType ? props.activeLabelType : this.tabs[0];
@@ -118,14 +115,14 @@ class LabelsToolkit extends React.Component<IProps, IState> {
                         />
                         {tabData.headerText}
                     </div>
-                    <div className="HeaderGroupWrapper">
+                    {/* <div className="HeaderGroupWrapper">
                         <img
                             draggable={false}
                             className="Arrow"
                             src={"ico/down.png"}
                             alt={"down_arrow"}
                         />
-                    </div>
+                    </div> */}
                 </div>;
 
             const content =
@@ -141,7 +138,7 @@ class LabelsToolkit extends React.Component<IProps, IState> {
                         }}
                         imageData={imagesData[activeImageIndex]}
                     />}
-                    {labelType === LabelType.POINT && <PointLabelsList
+                    {/* {labelType === LabelType.POINT && <PointLabelsList
                         size={{
                             width: size.width - 20,
                             height: activeTabContentHeight - 20
@@ -168,7 +165,7 @@ class LabelsToolkit extends React.Component<IProps, IState> {
                             height: activeTabContentHeight - 20
                         }}
                         imageData={imagesData[activeImageIndex]}
-                    />}
+                    />} */}
                 </div>;
 
             children.push([header, content]);

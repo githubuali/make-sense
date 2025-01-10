@@ -1,27 +1,57 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './MainView.scss';
 import { TextButton } from '../Common/TextButton/TextButton';
 import classNames from 'classnames';
 import { EditorFeatureData, IEditorFeature } from '../../data/info/EditorFeatureData';
 
 import ImagesDropZone from './ImagesDropZone/ImagesDropZone';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutAction } from '../../store/auth/actionCreators';
 import { logoutApi } from '../../api/auth';
+import { getAllMissionTypes, getNumberTaggedImagesByUserId } from '../../api/makesense';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
+interface MissionType {
+    id: string;
+    isActive: boolean;
+    name: string;
+    type: string;
+}
 
 const MainView: React.FC = () => {
     const [projectInProgress, setProjectInProgress] = useState(false);
     const [projectCanceled, setProjectCanceled] = useState(false);
+    const [numberImages, setNumberImages] = useState(0);
+    const [missionTypes, setMissionTypes] = useState<MissionType[]>([]);
+    const [missionTypeActiveId, setMissionTypeActiveId] = useState("");
+    const [showMissionTypes, setShowMissionTypes] = useState(true);
 
     const dispatch = useDispatch()
 
+    const userId = useSelector((state: { auth: { user: { id: string } } }) => state.auth.user.id)
+
+    useEffect(() => {
+            getNumberTaggedImagesByUserId(userId)
+                .then((res) => setNumberImages(res))
+                .catch((err) => console.error(err));
+            getAllMissionTypes()
+                .then((res) => setMissionTypes(res))
+                .catch((err) => console.error(err));
+        }, [])
+
     const startProject = () => {
         setProjectInProgress(true);
+        setShowMissionTypes(false);
     };
 
     const endProject = () => {
         setProjectInProgress(false);
         setProjectCanceled(true);
+        setShowMissionTypes(true);
     };
 
     const logout = () => {
@@ -38,40 +68,6 @@ const MainView: React.FC = () => {
         }
         );
     };
-
-    // const DarkTooltip = styled(({ className, ...props }: TooltipProps) => (
-    //     <Tooltip {...props} classes={{ popper: className }} />
-    // ))(({ theme }) => ({
-    //     [`& .${tooltipClasses.tooltip}`]: {
-    //         backgroundColor: '#171717',
-    //         color: '#ffffff',
-    //         boxShadow: theme.shadows[1],
-    //         fontSize: 11,
-    //         maxWidth: 120
-    //     },
-    // }));
-
-    // const getSocialMediaButtons = (size: ISize) => {
-    //     return SocialMediaData.map((data: ISocialMedia, index: number) => {
-    //         return <DarkTooltip
-    //             key={index}
-    //             disableFocusListener={true}
-    //             title={data.tooltipMessage}
-    //             TransitionComponent={Fade}
-    //             TransitionProps={{ timeout: 600 }}
-    //             placement='left'
-    //         >
-    //             <div>
-    //                 <ImageButton
-    //                     buttonSize={size}
-    //                     image={data.imageSrc}
-    //                     imageAlt={data.imageAlt}
-    //                     href={data.href}
-    //                 />
-    //             </div>
-    //         </DarkTooltip>;
-    //     });
-    // };
 
     const getEditorFeatureTiles = () => {
         return EditorFeatureData.map((data: IEditorFeature) => {
@@ -95,6 +91,11 @@ const MainView: React.FC = () => {
         });
     };
 
+    const handleSelectChange = (event: SelectChangeEvent) => {
+        const missionTypeId = event.target.value;
+        setMissionTypeActiveId(missionTypeId)
+    };
+
     return (
         <div className={getClassName()}>
             <div className='Slider' id='lower'>
@@ -114,8 +115,17 @@ const MainView: React.FC = () => {
                     <img
                         draggable={false}
                         alt={'main-logo'}
-                        src={'ico/main-image-color.png'}
+                        src={'ico/tag_vision.png'}
                     />
+
+                <div>
+                    <p
+                    style={{color: "white"}}
+                    >
+                        Number of images tagged: {numberImages}
+                    </p>
+                </div>
+
                 {
                     !projectInProgress &&
                     <TextButton
@@ -124,6 +134,11 @@ const MainView: React.FC = () => {
                         style={{color: 'white', boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
                     />
                 }
+                {projectInProgress && <TextButton
+                    label={'Go Back'}
+                    onClick={endProject}
+                    style={{position: 'inherit' ,boxShadow: 'white 0 0 0 2px inset', width: 'fit-content'}}
+                />}
                 </div>
                 <div className='EditorFeaturesWrapper'>
                     {getEditorFeatureTiles()}
@@ -131,19 +146,35 @@ const MainView: React.FC = () => {
                 <div className='TriangleVertical'>
                     <div className='TriangleVerticalContent' />
                 </div>
-                {projectInProgress && <TextButton
-                    label={'Go Back'}
-                    onClick={endProject}
-                />}
-               
+            
             </div>
             <div className='RightColumn'>
                 <div />
-                <ImagesDropZone />
-                {/* <div className='SocialMediaWrapper'>
-                    {getSocialMediaButtons({ width: 30, height: 30 })}
-                </div> */}
+                <ImagesDropZone missionTypeId={missionTypeActiveId} />
+                <div className='SocialMediaWrapper'>
+                </div>
+                <div>
+                    {(missionTypes && showMissionTypes) && 
+                    <FormControl style={{width: "15vw"}}>
+                        <InputLabel id="select-mission-type-label">Mission Type</InputLabel>
+                        <Select
+                        labelId="select-mission-type-label"
+                        id="select-mission-type"
+                        label="MissionType"
+                        onChange={handleSelectChange}
+                        input={<OutlinedInput label="MissionType" />}
+                        >
+                        {
+                            missionTypes.map((type) => {
+                                return (<MenuItem key={type.id} value={type.id} >{type.name}</MenuItem>
+                            )})
+                        }
+                        </Select>
+                    </FormControl>
+                    }
+                </div>
                 {!projectInProgress && <TextButton
+                    isDisabled={missionTypeActiveId === "" ? true : false}
                     label={'Get Started'}
                     onClick={startProject}
                     externalClassName={'get-started-button'}

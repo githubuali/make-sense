@@ -144,6 +144,13 @@ interface UpdateFirstLabelCreatedFlag {
     }
 }
 
+interface ClearImagesData {
+    type: typeof Action.CLEAR_IMAGES_DATA;
+    payload: {
+        imageData: [];
+    }
+}
+
 export type LabelsActionTypes = UpdateActiveImageIndex
     | UpdateActiveLabelNameId
     | UpdateActiveLabelType
@@ -154,4 +161,5 @@ export type LabelsActionTypes = UpdateActiveImageIndex
     | UpdateActiveLabelId
     | UpdateHighlightedLabelId
     | UpdateFirstLabelCreatedFlag
+    | ClearImagesData
 

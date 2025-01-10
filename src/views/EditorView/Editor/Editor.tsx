@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import './Editor.scss';
 import {ISize} from '../../../interfaces/ISize';
@@ -27,7 +28,6 @@ import {IPoint} from '../../../interfaces/IPoint';
 import {RenderEngineUtil} from '../../../utils/RenderEngineUtil';
 import {LabelStatus} from '../../../data/enums/LabelStatus';
 import {isEqual} from 'lodash';
-import {AIActions} from '../../../logic/actions/AIActions';
 
 interface IProps {
     size: ISize;
@@ -83,7 +83,6 @@ class Editor extends React.Component<IProps, IState> {
 
         if (prevProps.activeLabelType !== activeLabelType) {
             EditorActions.swapSupportRenderingEngine(activeLabelType);
-            AIActions.detect(imageData.id, ImageRepository.getById(imageData.id));
         }
 
         this.updateModelAndRender();
@@ -114,7 +113,6 @@ class Editor extends React.Component<IProps, IState> {
     private loadImage = async (imageData: ImageData): Promise<any> => {
         if (imageData.loadStatus) {
             EditorActions.setActiveImage(ImageRepository.getById(imageData.id));
-            AIActions.detect(imageData.id, ImageRepository.getById(imageData.id));
             this.updateModelAndRender()
         }
         else {
@@ -123,7 +121,7 @@ class Editor extends React.Component<IProps, IState> {
                 const saveLoadedImagePartial = (image: HTMLImageElement) => this.saveLoadedImage(image, imageData);
                 FileUtil.loadImage(imageData.fileData)
                     .then((image:HTMLImageElement) => saveLoadedImagePartial(image))
-                    .catch((error) => this.handleLoadImageError())
+                    .catch((error) => this.handleLoadImageError(error))
             }
         }
     };
@@ -133,12 +131,11 @@ class Editor extends React.Component<IProps, IState> {
         this.props.updateImageDataById(imageData.id, imageData);
         ImageRepository.storeImage(imageData.id, image);
         EditorActions.setActiveImage(image);
-        AIActions.detect(imageData.id, image);
         EditorActions.setLoadingStatus(false);
         this.updateModelAndRender()
     };
 
-    private handleLoadImageError = () => {};
+    private handleLoadImageError = (error: any) => {console.log(error)};
 
     // =================================================================================================================
     // HELPER METHODS
