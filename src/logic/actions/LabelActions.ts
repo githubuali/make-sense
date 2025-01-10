@@ -60,13 +60,6 @@ export class LabelActions {
         store.dispatch(updateImageDataById(imageData.id, newImageData));
     }
 
-    // TODO: hacer que funcione esto
-    public static clearImagesData() {
-        console.log("trying to clear imageData")
-        store.dispatch(clearAllImageData([]))
-        console.log("cleared")
-    }
-
     public static deletePolygonLabelById(imageId: string, labelPolygonId: string) {
         const imageData: ImageData = LabelsSelector.getImageDataById(imageId);
         const newImageData = {

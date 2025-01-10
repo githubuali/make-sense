@@ -160,7 +160,6 @@ const MainView: React.FC = () => {
                         <Select
                         labelId="select-mission-type-label"
                         id="select-mission-type"
-                        // value={missionTypeActiveName ? missionTypeActiveName : ""}
                         label="MissionType"
                         onChange={handleSelectChange}
                         input={<OutlinedInput label="MissionType" />}
