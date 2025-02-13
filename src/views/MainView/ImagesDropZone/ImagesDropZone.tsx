@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import './ImagesDropZone.scss';
 import { TextButton } from '../../Common/TextButton/TextButton';
 import { ImageData } from '../../../store/labels/types';
@@ -11,12 +11,13 @@ import { updateActivePopupType, updateProjectData } from '../../../store/general
 import { ProjectData } from '../../../store/general/types';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
 import { sortBy } from 'lodash';
-import { getUntaggedImages } from '../../../api/makesense';
+import { getAllMissionTypes, getUntaggedImages } from '../../../api/makesense';
 import { fetchFileFromUrl } from '../../../utils/imgFileCreator';
 import { ClipLoader } from 'react-spinners';
+import StyledModal from '../StyledModal';
 
 interface IProps {
-    missionTypeId: string;
+    showModal: boolean;
     updateActiveImageIndexAction: (activeImageIndex: number) => any;
     addImageDataAction: (imageData: ImageData[]) => any;
     updateProjectDataAction: (projectData: ProjectData) => any;
@@ -30,16 +31,38 @@ export interface TagFile {
     url: string;
 }
 
+export interface MissionType {
+    id: string;
+    isActive: boolean;
+    name: string;
+    type: string;
+}
+
 const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
     const [untaggedFiles, setUntaggedFiles] = useState<File[]>([]);
     const [fileError, setFileError] = useState(false);
     const [filesLoading, setFilesLoading] = useState(false);
-    const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [flag, setFlag] = useState(true);
+    const [showModal, setShowModal] = useState(props.showModal);
+    const [missionTypes, setMissionTypes] = useState<MissionType[]>([]);
+    const [missionTypeActive, setMissionTypeActive] = useState<MissionType>()
+
+    useEffect(() => {
+        getAllMissionTypes()
+            .then((res) => setMissionTypes(res))
+            .catch((err) => console.error(err));
+    }, [])
+
+    useEffect(() => {
+        if (flag) {
+            setShowModal(props.showModal)
+        }
+    }, [props.showModal])
 
     const getFiles = () => {
         setFilesLoading(true);
-        getUntaggedImages(props.missionTypeId)
+        getUntaggedImages(missionTypeActive.id)
             .then((data: TagFile[]) => {
                 // Convert each signed URL to a File object
                 return Promise.all(data.map(fetchFileFromUrl));
@@ -131,7 +154,7 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
             props.updateProjectDataAction({
                 ...props.projectData,
                 type: projectType,
-                missionTypeId: props.missionTypeId,
+                missionTypeId: missionTypeActive.id,
             });
             props.updateActiveImageIndexAction(0);
             props.addImageDataAction(
@@ -148,9 +171,24 @@ const ImagesDropZone: React.FC<IProps> = (props: PropsWithChildren<IProps>) => {
     const startEditorWithObjectDetection = () =>
         startEditor(ProjectType.OBJECT_DETECTION);
 
+    const handleMissionTypeSelection = (missionType: MissionType) => {
+        setMissionTypeActive(missionType)
+    }
+
+    const handleSelectButtonClick = () => {
+        setShowModal(false);
+    }
 
     return (
         <div className="ImagesDropZone">
+            <StyledModal
+                showModal={showModal}
+                onRequestClose={() => setShowModal(false)}
+                missionTypes={missionTypes}
+                handleMissionTypeSelection={handleMissionTypeSelection}
+                handleSelectButtonClick={handleSelectButtonClick}
+                missionTypeActive={missionTypeActive}
+            />
             <div
                 className={`GetButton ${isButtonDisabled ? 'disabled' : ''}`}
                 onClick={handleGetButtonClick}

@@ -16,6 +16,7 @@ import {ImageData} from '../../../store/labels/types';
 import { ImageDataUtil } from '../../../utils/ImageDataUtil';
 import ReactModal from 'react-modal';
 import { ClipLoader } from 'react-spinners';
+import Swal from 'sweetalert2';
 
 
 interface IProps {
@@ -244,12 +245,25 @@ class VirtualList extends React.Component<IProps, IState> {
 
         this.handlePostImages(postImagesArr, missionTypeId).finally(() => {
             this.closeModal();
+
+            if (this.state.showNoMoreImgsModal) {
+                Swal.fire({
+                    title: 'Good job!',
+                    text: 'There are no more images to tag!',
+                    icon: 'success',
+                    confirmButtonText: 'Go back'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/';
+                    }
+                });
+            }
         });
     }
     
     public render() {
         const displayContent = !!this.props.size && !!this.props.childSize && !!this.gridSize;
-        const { isLoading, showModal, showNoMoreImgsModal } = this.state;
+        const { isLoading, showModal } = this.state;
     
         return (
         <div className="VirtualList" style={this.getVirtualListStyle()}>
@@ -304,48 +318,6 @@ class VirtualList extends React.Component<IProps, IState> {
                         loading={true}
                     />
                 <p>Please wait while we save your changes.</p>
-            </ReactModal>
-            )}
-
-            {showNoMoreImgsModal && (
-            <ReactModal
-                isOpen={showNoMoreImgsModal}
-                onRequestClose={() => { return }}
-                shouldCloseOnOverlayClick= {false}
-                shouldCloseOnEsc={false}
-                contentLabel="No more images Modal"
-                style={{
-                    overlay: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                    zIndex: 1000,
-                    },
-                    content: {
-                        top: '50%',
-                        left: '50%',
-                        right: 'auto',
-                        bottom: 'auto',
-                        marginRight: '-50%',
-                        transform: 'translate(-50%, -50%)',
-                        padding: '20px',
-                        textAlign: 'center',
-                    },
-                }}
-            >
-                <div>
-                    <img
-                        draggable={false}
-                        alt={'no more imgs'}
-                        src={'ico/ok_green.png'}
-                        height={150}
-                        width={150}
-                    />
-                    <h2 className="extraBold">There are no more images to tag</h2>
-                    <TextButton
-                        label={'Go Back'}
-                        onClick={() => window.location.href = '/'}
-                    />
-
-                </div>
             </ReactModal>
             )}
         </div>
