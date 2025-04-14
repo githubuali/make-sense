@@ -13,6 +13,7 @@ const initialState: GeneralState = {
     crossHairVisible: true,
     enablePerClassColoration: true,
     projectData: {
+        missionTypeId: "",
         type: null,
         name: 'my-project-name',
     },

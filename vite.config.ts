@@ -24,16 +24,6 @@ export default ({ mode }: UserConfig): UserConfigExport => {
             classnames: ['classnames'],
             runtime: ['react', 'react-is'],
             'runtime-dom': ['react-dom'],
-
-            ai: ['@tensorflow/tfjs',
-              '@tensorflow/tfjs-backend-cpu',
-              '@tensorflow/tfjs-backend-webgl',
-              '@tensorflow/tfjs-core',
-              '@tensorflow/tfjs-node'],
-            models: [
-              '@tensorflow-models/coco-ssd',
-              '@tensorflow-models/posenet',
-            ],
             ui: ['@mui/material', '@mui/system'],
             moment: ['moment']
 

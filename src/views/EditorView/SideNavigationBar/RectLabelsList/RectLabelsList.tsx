@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import {ISize} from '../../../../interfaces/ISize';
 import Scrollbars from 'react-custom-scrollbars-2';

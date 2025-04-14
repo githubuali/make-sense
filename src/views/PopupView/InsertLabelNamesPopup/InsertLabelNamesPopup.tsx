@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from 'react';
 import './InsertLabelNamesPopup.scss';
 import { GenericYesNoPopup } from '../GenericYesNoPopup/GenericYesNoPopup';
 import { PopupWindowType } from '../../../data/enums/PopupWindowType';
@@ -11,7 +12,6 @@ import { ImageButton } from '../../Common/ImageButton/ImageButton';
 import { LabelName } from '../../../store/labels/types';
 import { LabelUtil } from '../../../utils/LabelUtil';
 import { LabelsSelector } from '../../../store/selectors/LabelsSelector';
-import { LabelActions } from '../../../logic/actions/LabelActions';
 import { ColorSelectorView } from './ColorSelectorView/ColorSelectorView';
 import { Settings } from '../../../settings/Settings';
 import { reject, sample, filter, uniq } from 'lodash';
@@ -22,6 +22,8 @@ import { NotificationUtil } from '../../../utils/NotificationUtil';
 import { NotificationsDataMap } from '../../../data/info/NotificationsData';
 import { Notification } from '../../../data/enums/Notification';
 import { StyledTextField } from '../../Common/StyledTextField/StyledTextField';
+import { getTagTypeByMissionType } from '../../../api/makesense';
+import { LabelActions } from '../../../logic/actions/LabelActions';
 
 interface IProps {
     updateActivePopupTypeAction: (activePopupType: PopupWindowType) => any;
@@ -44,6 +46,15 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
         enablePerClassColoration
     }) => {
     const [labelNames, setLabelNames] = useState(LabelsSelector.getLabelNames());
+
+    useEffect(() => {
+        getTagTypeByMissionType('95cb2423-72bb-4e2a-aef0-6208953d4978')
+        .then(tag => {
+            const newLabels = tag.map(t => LabelUtil.createLabelName(t.name, t.id))
+            setLabelNames(newLabels)
+        })
+    }, [])
+    
 
     const validateEmptyLabelNames = (): boolean => {
         const emptyLabelNames = filter(labelNames, (labelName: LabelName) => labelName.name === '');
@@ -81,10 +92,10 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
 
     const safeAddLabelNameCallback = () => callbackWithLabelNamesValidation(addLabelNameCallback)();
 
-    const deleteLabelNameCallback = (id: string) => {
-        const newLabelNames = reject(labelNames, { id });
-        setLabelNames(newLabelNames);
-    };
+    // const deleteLabelNameCallback = (id: string) => {
+    //     const newLabelNames = reject(labelNames, { id });
+    //     setLabelNames(newLabelNames);
+    // };
 
     const togglePerClassColorationCallback = () => {
         updatePerClassColorationStatusAction(!enablePerClassColoration);
@@ -103,19 +114,19 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
         }
     };
 
-    const onChange = (id: string, value: string) => {
-        const newLabelNames = labelNames.map((labelName: LabelName) => {
-            return labelName.id === id ? {
-                ...labelName, name: value
-            } : labelName;
-        });
-        setLabelNames(newLabelNames);
-    };
+    // const onChange = (id: string, value: string) => {
+    //     const newLabelNames = labelNames.map((labelName: LabelName) => {
+    //         return labelName.id === id ? {
+    //             ...labelName, name: value
+    //         } : labelName;
+    //     });
+    //     setLabelNames(newLabelNames);
+    // };
 
     const labelInputs = labelNames.map((labelName: LabelName) => {
-        const onChangeCallback = (event: React.ChangeEvent<HTMLInputElement>) =>
-            onChange(labelName.id, event.target.value);
-        const onDeleteCallback = () => deleteLabelNameCallback(labelName.id);
+        // const onChangeCallback = (event: React.ChangeEvent<HTMLInputElement>) =>
+            // onChange(labelName.id, event.target.value);
+        // const onDeleteCallback = () => deleteLabelNameCallback(labelName.id);
         const onChangeColorCallback = () => changeLabelNameColorCallback(labelName.id);
         return <div className='LabelEntry' key={labelName.id}>
             <StyledTextField variant='standard'
@@ -124,10 +135,10 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
                 autoFocus={true}
                 type={'text'}
                 margin={'dense'}
-                label={'Insert label'}
+                label={'Tag Name'}
                 onKeyUp={onKeyUpCallback}
                 value={labelName.name}
-                onChange={onChangeCallback}
+                // onChange={onChangeCallback}
                 style={{ width: 280 }}
                 InputLabelProps={{
                     shrink: true,
@@ -137,12 +148,12 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
                 color={labelName.color}
                 onClick={onChangeColorCallback}
             />}
-            <ImageButton
+            {/* <ImageButton
                 image={'ico/trash.png'}
                 imageAlt={'remove_label'}
                 buttonSize={{ width: 30, height: 30 }}
                 onClick={onDeleteCallback}
-            />
+            /> */}
         </div>;
     });
 
@@ -169,13 +180,13 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
 
     const safeOnUpdateAcceptCallback = () => callbackWithLabelNamesValidation(onUpdateAcceptCallback)();
 
-    const onCreateRejectCallback = () => {
-        updateActivePopupTypeAction(PopupWindowType.LOAD_LABEL_NAMES);
-    };
+    // const onCreateRejectCallback = () => {
+    //     updateActivePopupTypeAction(PopupWindowType.LOAD_LABEL_NAMES);
+    // };
 
-    const onUpdateRejectCallback = () => {
-        updateActivePopupTypeAction(null);
-    };
+    // const onUpdateRejectCallback = () => {
+    //     updateActivePopupTypeAction(null);
+    // };
 
     const renderContent = () => {
         return (<div className='InsertLabelNamesPopup'>
@@ -204,8 +215,7 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
                         isUpdate ?
                             'You can now edit the label names you use to describe the objects in the photos. Use the ' +
                             '+ button to add a new empty text field.' :
-                            'Before you start, you can create a list of labels you plan to assign to objects in your ' +
-                            'project. You can also choose to skip that part for now and define label names as you go.'
+                            'This are the available tags for your images, if there is one missing please contact your friendly developer :)'
                     }
                 </div>
                 <div className='LabelsContainer'>
@@ -234,12 +244,11 @@ const InsertLabelNamesPopup: React.FC<IProps> = (
 
     return (
         <GenericYesNoPopup
-            title={isUpdate ? 'Edit labels' : 'Create labels'}
+            title={isUpdate ? 'Edit labels' : 'Available labels'}
             renderContent={renderContent}
             acceptLabel={isUpdate ? 'Accept' : 'Start project'}
             onAccept={isUpdate ? safeOnUpdateAcceptCallback : safeOnCreateAcceptCallback}
-            rejectLabel={isUpdate ? 'Cancel' : 'Load labels from file'}
-            onReject={isUpdate ? onUpdateRejectCallback : onCreateRejectCallback}
+            skipRejectButton
         />);
 };
 

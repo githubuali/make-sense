@@ -4,7 +4,7 @@ import {LabelType} from "../../../../data/enums/LabelType";
 import {ISize} from "../../../../interfaces/ISize";
 import {AppState} from "../../../../store";
 import {ImageData, LabelPoint, LabelRect} from "../../../../store/labels/types";
-import {VirtualList} from "../../../Common/VirtualList/VirtualList";
+import VirtualList from "../../../Common/VirtualList/VirtualList";
 import ImagePreview from "../ImagePreview/ImagePreview";
 import './ImagesList.scss';
 import {ContextManager} from "../../../../logic/context/ContextManager";
@@ -108,7 +108,7 @@ class ImagesList extends React.Component<IProps, IState> {
                     childRender={this.renderImagePreview}
                     overScanHeight={200}
                 />}
-            </div>
+            </div> 
         )
     }
 }

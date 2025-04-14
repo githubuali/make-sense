@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {connect} from 'react-redux';
+import {connect, useDispatch} from 'react-redux';
 import {Direction} from '../../../data/enums/Direction';
 import {ISize} from '../../../interfaces/ISize';
 import {Settings} from '../../../settings/Settings';
@@ -72,7 +72,7 @@ const EditorContainer: React.FC<IProps> = (
     };
 
     const leftSideBarRender = () => {
-        return <ImagesList/>
+        return <ImagesList />
     };
 
     const rightSideBarButtonOnClick = () => {

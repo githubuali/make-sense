@@ -79,6 +79,12 @@ export function labelsReducer(
                 firstLabelCreatedFlag: action.payload.firstLabelCreatedFlag
             }
         }
+        case Action.CLEAR_IMAGES_DATA: {
+            return {
+                ...state,
+                imagesData: action.payload.imageData
+            }
+        }
         default:
             return state;
     }

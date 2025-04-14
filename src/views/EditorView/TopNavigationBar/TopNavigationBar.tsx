@@ -49,29 +49,16 @@ const TopNavigationBar: React.FC<IProps> = (props) => {
                             alt={'make-sense'}
                             src={'/make-sense-ico-transparent.png'}
                         />
-                        Make Sense
+                        Tag Vision
                     </div>
                 </div>
-                <div className='NavigationBarGroupWrapper'>
+                {/* <div className='NavigationBarGroupWrapper'>
                     <DropDownMenu/>
-                </div>
+                </div> */}
                 <div className='NavigationBarGroupWrapper middle'>
-                    <div className='ProjectName'>Project Name:</div>
-                    <TextInput
-                        isPassword={false}
-                        value={props.projectData.name}
-                        onChange={onChange}
-                        onFocus={onFocus}
-                    />
+                    <div className='ProjectName'>Tagging Tool</div>
                 </div>
-                <div className='NavigationBarGroupWrapper'>
-                    <ImageButton
-                        image={'ico/github-logo.png'}
-                        imageAlt={'github-logo.png'}
-                        buttonSize={{width: 30, height: 30}}
-                        href={Settings.GITHUB_URL}
-                    />
-                </div>
+               
             </div>
         </div>
     );
